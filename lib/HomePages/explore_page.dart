@@ -3,38 +3,75 @@ import 'package:flutter/material.dart';
 import 'package:reconnect/Components/User_Detail_Input.dart';
 import 'package:reconnect/Components/user_listtile.dart';
 
+import '../repos/user_repo.dart';
+
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
   @override
-  State<ExplorePage> createState() => _ExplorePageState();
+  State createState() => _ExplorePageState();
 }
 
 class _ExplorePageState extends State<ExplorePage> {
+  TextEditingController userSearchController = TextEditingController();
+
+  List users = [];
+  bool isLoading = true;
+
+  final ApiService apiService = ApiService(baseUrl: 'http://10.0.2.2:3000/api');
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUsers();
+  }
+
+  void fetchUsers() async {
+    setState(() {
+      isLoading = true;
+    });
+    var fetchedUsers = await apiService.getAllUsers();
+    if (fetchedUsers != null) {
+      setState(() {
+        users = fetchedUsers;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        users = [];
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    
-    TextEditingController userSearchController = TextEditingController();
-    List users = [1,2,3,4,5,6,7,8,9,10];
     return Container(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            UserDetailInput(nameController: userSearchController,hint: "Search",PrefixIcon: IconButton(onPressed: (){}, icon:Icon(Icons.search),)),
-            Container(
-              height: 650,
-                width: double.maxFinite,
-                child: ListView.builder(itemBuilder: (context, index) => Column(
-                  children: [
-                    UserListtile(userName: "lora", bioOfUser: "software dev",url: "https://imgs.search.brave.com/fHZcSJ0khy0_T7lJeTcvEo6IefpPllSkpmAqCSRZYuY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTE3/NjEzMDY1L3Bob3Rv/L2h1bWFuLWJyYWlu/LmpwZz9zPTYxMng2/MTImdz0wJms9MjAm/Yz1FTGFxVjZheDNW/N2N4S284eFBqdGsx/OFN5dTdRZnRmemg5/aWlqanZFSHNFPQ",GmailId: "${users[index]}",),
-                    Container(
-                      color: Colors.white12,
-                      width: double.maxFinite,
-                      height: 4,
-                    )
-                  ],
-                ),itemCount: users.length,)),
+            UserDetailInput(
+              nameController: userSearchController,
+              hint: "Search",
+              PrefixIcon: IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+            ),
+            Expanded(
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  final user = users[index];
+                  return UserListtile(
+                    userName: user['username'] ?? 'No Name',
+                    bioOfUser: user['bio'] ?? '',
+                    url: user['pictureUrl'],
+                    GmailId: user['email'] ?? '',
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

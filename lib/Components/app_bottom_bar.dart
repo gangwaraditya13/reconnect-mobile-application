@@ -12,7 +12,7 @@ class AppBottomBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: 5.0,bottom: 5.0),
         child: GNav(
-          tabBackgroundColor: Colors.white24,
+          tabBackgroundColor: Colors.white,
           activeColor: Colors.blue[300],
           gap: 5,
           mainAxisAlignment: MainAxisAlignment.center,

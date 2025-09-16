@@ -1,109 +1,139 @@
 import 'package:flutter/material.dart';
-import 'package:reconnect/Components/app_button.dart';
-import 'package:reconnect/Components/edit_profile_component.dart';
+import 'package:reconnect/repos/user_repo.dart';
+import '../Components/edit_profile_component.dart';
+import 'Components/Exprence.dart';
 
 class EditUser extends StatefulWidget {
-  String? institution;
-  String? bioUser;
-  String? currentPosition;
-  String? currentCompany;
-  String? batchOfUser;
-  String? courseOfUser;
-  String? skillsOfUser;
-  String? linkedInUrl;
-  String roll;
-  EditUser({super.key, this.bioUser,this.currentPosition,this.currentCompany,this.linkedInUrl,this.courseOfUser,this.batchOfUser,this.skillsOfUser,this.institution,required this.roll});
+  final String? userName;
+  final String? institution;
+  final String? courseOfUser;
+  final String? batchOfUser;
+  final String? skillsOfUser;
+  final String? bioUser;
+  final String? currentPosition;
+  final String? currentCompany;
+  final String? linkedInUrl;
+  final String roll;
+  final List<Map<String, dynamic>>? experience;
+  // Add other fields if necessary
+
+  EditUser({
+    super.key,
+    this.userName,
+    this.institution,
+    this.courseOfUser,
+    this.batchOfUser,
+    this.skillsOfUser,
+    this.bioUser,
+    this.currentPosition,
+    this.currentCompany,
+    this.linkedInUrl,
+    required this.roll,
+    this.experience,
+  });
 
   @override
   State<EditUser> createState() => _EditUserState();
 }
 
 class _EditUserState extends State<EditUser> {
+  late TextEditingController nameController, institutionController, courseController,
+      batchController, skillsController, bioController, companyController, positionController, linkedInController;
+
+  List<Map<String, dynamic>> experienceList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.userName ?? '');
+    institutionController = TextEditingController(text: widget.institution ?? '');
+    courseController = TextEditingController(text: widget.courseOfUser ?? '');
+    batchController = TextEditingController(text: widget.batchOfUser ?? '');
+    skillsController = TextEditingController(text: widget.skillsOfUser ?? '');
+    bioController = TextEditingController(text: widget.bioUser ?? '');
+    companyController = TextEditingController(text: widget.currentCompany ?? '');
+    positionController = TextEditingController(text: widget.currentPosition ?? '');
+    linkedInController = TextEditingController(text: widget.linkedInUrl ?? '');
+    experienceList = widget.experience != null ? List<Map<String, dynamic>>.from(widget.experience!) : [];
+  }
+
+  Future<void> _editExperience() async {
+    final updated = await Navigator.push<List<Map<String, dynamic>>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExperienceAdditionPage(initialExperience: experienceList),
+      ),
+    );
+    if (updated != null) {
+      setState(() {
+        experienceList = updated;
+      });
+    }
+  }
+
+  void _onSave() {
+    // You'd send this structured map to your backend.
+    Map<String, dynamic> updated = {
+      "userName": nameController.text.trim(),
+      "institution": institutionController.text.trim(),
+      "course": courseController.text.trim(),
+      "batch": batchController.text.trim(),
+      "skills": skillsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
+      "bio": bioController.text.trim(),
+      "currentCompany": companyController.text.trim(),
+      "currentPosition": positionController.text.trim(),
+      "linkedIn": linkedInController.text.trim(),
+      "experience": experienceList,
+      "roll": widget.roll,
+    };
+    Navigator.pop(context, updated);
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    institutionController.dispose();
+    courseController.dispose();
+    batchController.dispose();
+    skillsController.dispose();
+    bioController.dispose();
+    companyController.dispose();
+    positionController.dispose();
+    linkedInController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-
-    TextEditingController institutionController = TextEditingController(text: widget.institution);
-    TextEditingController courseOfUserController = TextEditingController(text: widget.courseOfUser);
-    TextEditingController bioUserController = TextEditingController(text: widget.bioUser);
-    TextEditingController skillsOfUserController = TextEditingController(text: widget.skillsOfUser);
-    TextEditingController currentPositionController = TextEditingController(text: widget.currentPosition);
-    TextEditingController currentCompanyController = TextEditingController(text: widget.currentCompany);
-    TextEditingController linkedInUrlController = TextEditingController(text: widget.linkedInUrl);
-
-    void ontapAddExperience(){}
-
-    void onPressSave(){
-      Navigator.pop(context);
-    }
-
-    if(widget.roll!.toLowerCase().toString() == "student"){
-      return Scaffold(
-        appBar: AppBar(
-          title: Text("Edit"),
-          centerTitle: true,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            alignment: WrapAlignment.center,
-            children: [
-              EditProfileComponent(nameController: institutionController, SuffixIcon: IconButton(onPressed: (){}, icon: Icon(Icons.calendar_month)),hint: "Institution and Batch",),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text("Batch: ",textAlign: TextAlign.start),
-              ),
-              EditProfileComponent(nameController: courseOfUserController, hint: "Course",),
-              SizedBox.square(dimension: 10,),
-              EditProfileComponent(nameController: bioUserController,hint: "Bio",maxline: 3,),
-              SizedBox.square(dimension: 10,),
-              EditProfileComponent(nameController: skillsOfUserController,hint: "Skills",),
-              SizedBox.square(dimension: 10,),
-              EditProfileComponent(nameController: linkedInUrlController,hint: "Linkedin Url",),
-              SizedBox.square(dimension: 10,),
-              IconButton(onPressed: onPressSave, icon: Icon(Icons.save))
-            ],
-          ),
-        ),
-      );
-    }else{
-      return Scaffold(
+    return Scaffold(
       appBar: AppBar(
-        title: Text("Edit"),
-        centerTitle: true,
+        title: Text("Edit Profile"),
+        actions: [IconButton(onPressed: _onSave, icon: Icon(Icons.save))],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          alignment: WrapAlignment.center,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(12),
+        child: Column(
           children: [
-            EditProfileComponent(nameController: institutionController, SuffixIcon: IconButton(onPressed: (){}, icon: Icon(Icons.calendar_month)),hint: "Institution and Batch",),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text("Batch: ",textAlign: TextAlign.start,),
-            ),
-            EditProfileComponent(nameController: courseOfUserController,hint: "Course",),
-            SizedBox.square(dimension: 10,),
-            EditProfileComponent(nameController: bioUserController,hint: "Bio",),
-            SizedBox.square(dimension: 10,),
-            EditProfileComponent(nameController: skillsOfUserController,hint: "Skills",),
-            SizedBox.square(dimension: 10,),
-            EditProfileComponent(nameController: currentCompanyController, hint: "Current Company",),
-            SizedBox.square(dimension: 10,),
-            EditProfileComponent(nameController: currentPositionController, hint: "Current Position",),
-            SizedBox.square(dimension: 10,),
-            EditProfileComponent(nameController: linkedInUrlController, hint: "LinkedIn Url",),
-            SizedBox.square(dimension: 10,),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: AppButton(buttonName: "Add Experience", buttonColor: Colors.blue.shade400, ontap: ontapAddExperience),
-            ),
-            SizedBox.square(dimension: 10,),
-            IconButton(onPressed: onPressSave, icon: Icon(Icons.save))
+            EditProfileComponent(nameController: nameController, hint: 'Name'),
+            EditProfileComponent(nameController: institutionController, hint: 'Institution'),
+            EditProfileComponent(nameController: courseController, hint: 'Course'),
+            EditProfileComponent(nameController: batchController, hint: 'Batch (e.g., June 2020)'),
+            EditProfileComponent(nameController: skillsController, hint: 'Skills (comma separated)'),
+            EditProfileComponent(nameController: bioController, hint: 'Bio'),
+            if (widget.roll.toLowerCase() != "student") ...[
+              EditProfileComponent(nameController: companyController, hint: 'Current Company'),
+              EditProfileComponent(nameController: positionController, hint: 'Current Position'),
+              SizedBox(height: 10),
+              ElevatedButton.icon(
+                icon: Icon(Icons.edit),
+                label: Text("Edit Experience"),
+                onPressed: _editExperience,
+              ),
+            ],
+            EditProfileComponent(nameController: linkedInController, hint: 'LinkedIn URL'),
           ],
         ),
       ),
-    );}
+    );
   }
 }

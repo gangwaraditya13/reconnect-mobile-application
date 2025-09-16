@@ -1,14 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserDetailInput extends StatelessWidget {
-  var nameController;
-  String? hint;
-  Color enabledBorderColor;
-  Color focusedBorderColor;
-  Color errorBorderColor;
-  bool obscureText;
-  Widget? PrefixIcon;
-  FormFieldValidator<String>? Validator;
+  final TextEditingController nameController;
+  final String? hint;
+  final Color enabledBorderColor;
+  final Color focusedBorderColor;
+  final Color errorBorderColor;
+  final bool obscureText;
+  final Widget? PrefixIcon;
+  final FormFieldValidator<String>? Validator;
+  final TextInputType? keyboardType;  // Added property here
+
   UserDetailInput({
     super.key,
     required this.nameController,
@@ -19,13 +22,16 @@ class UserDetailInput extends StatelessWidget {
     this.obscureText = false,
     this.PrefixIcon,
     this.Validator,
+    this.keyboardType,  // Accept keyboardType here
   });
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: nameController,
       obscureText: obscureText,
       validator: Validator,
+      keyboardType: keyboardType,  // Pass keyboardType here
       decoration: InputDecoration(
         prefixIcon: PrefixIcon,
         labelText: hint,

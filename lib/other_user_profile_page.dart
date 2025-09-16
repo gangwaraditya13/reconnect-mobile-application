@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reconnect/Components/quick_Action_contn.dart';
-import 'package:reconnect/HomePages/events_pages.dart';
 import 'package:reconnect/HomePages/mentorship_page.dart';
-import 'package:reconnect/edit_user.dart';
 import 'package:social_media_buttons/social_media_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
